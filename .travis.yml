@@ -1,0 +1,3 @@
+language: java
+jdk: oraclejdk8
+script: ./gradlew clean cleanGenerateXtext build createLocalMavenRepo -PuseJenkinsSnapshots=true -PcompileXtend=true -PignoreTestFailures=true --refresh-dependencies --continue
