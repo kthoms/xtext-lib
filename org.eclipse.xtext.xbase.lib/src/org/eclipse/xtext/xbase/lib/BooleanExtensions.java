@@ -1,9 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2011 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtext.xbase.lib;
 
@@ -19,13 +20,13 @@ import com.google.common.primitives.Booleans;
 @GwtCompatible public class BooleanExtensions {
 
 	/**
-	 * The logical <code>and</code> (conjunction). This is the equivalent to the java <code>&&</code> operator.
+	 * The logical <code>and</code> (conjunction). This is the equivalent to the java <code>&amp;&amp;</code> operator.
 	 * 
 	 * @param a
 	 *            a boolean value.
 	 * @param b
 	 *            another boolean value.
-	 * @return <code>a && b</code>
+	 * @return <code>a &amp;&amp; b</code>
 	 */
 	@Pure
 	@Inline(value="($1 && $2)", constantExpression=true)

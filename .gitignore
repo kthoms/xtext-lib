@@ -1,9 +1,8 @@
+/.m2/
 bin/
-.gradle/
 build/
-.project
-.classpath
-org.eclipse.buildship.core.prefs
-org.eclipse.jdt.core.prefs
+.gradle/
 *._trace
 *.xtendbin
+org.eclipse.buildship.core.prefs
+.DS_Store

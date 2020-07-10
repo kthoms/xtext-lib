@@ -1,9 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2011, 2017 itemis AG (http://www.itemis.eu) and others.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtext.xbase.lib;
 
@@ -254,6 +255,44 @@ public class IterableExtensions {
 	}
 
 	/**
+	 * Returns the elements of {@code unfiltered} that do not satisfy a predicate. The resulting iterable's iterator does not
+	 * support {@code remove()}. The returned iterable is a view on the original elements. Changes in the unfiltered
+	 * original are reflected in the view.
+	 *
+	 * @param unfiltered
+	 *            the unfiltered iterable. May not be <code>null</code>.
+	 * @param predicate
+	 *            the predicate. May not be <code>null</code>.
+	 * @return an iterable that contains only the elements that do not fulfill the predicate. Never <code>null</code>.
+	 *
+	 * @since 2.11
+	 */
+	@Pure
+	public static <T> Iterable<T> reject(Iterable<T> unfiltered, Function1<? super T, Boolean> predicate) {
+		return Iterables.filter(unfiltered, Predicates.not(new BooleanFunctionDelegate<T>(predicate)));
+	}
+
+	/**
+	 * Returns the elements of {@code unfiltered} that are not instanceof {@code type}. The resulting iterable's iterator does not
+	 * support {@code remove()}. The returned iterable is a view on the original elements. Changes in the unfiltered
+	 * original are reflected in the view.
+	 *
+	 * @param unfiltered
+	 *            the unfiltered iterable. May not be <code>null</code>.
+	* @param type
+	 *            the type of elements undesired. May not be <code>null</code>.
+	 * @return an iterable that contains only the elements that are not instances of {@code type}. Never <code>null</code>.
+	 *         Note that the elements of the iterable can be null as null is an instance of nothing.
+	 *
+	 * @since 2.15
+	 */
+	@GwtIncompatible("Class.isInstance")
+	@Pure
+	public static <T> Iterable<T> reject(Iterable<T> unfiltered, Class<?> type) {
+		return filter(unfiltered, (t) -> !type.isInstance(t));
+	}
+
+	/**
 	 * Returns all instances of class {@code type} in {@code unfiltered}. The returned iterable has elements whose class
 	 * is {@code type} or a subclass of {@code type}. The returned iterable's iterator does not support {@code remove()}
 	 * . The returned iterable is a view on the original elements. Changes in the unfiltered original are reflected in
@@ -289,9 +328,10 @@ public class IterableExtensions {
 	 * Returns an iterable that performs the given {@code transformation} for each element of {@code original} when
 	 * requested. The mapping is done lazily. That is, subsequent iterations of the elements in the iterable will
 	 * repeatedly apply the transformation.
-	 * 
+	 * <p>
 	 * The returned iterable's iterator supports {@code remove()} if the provided iterator does. After a successful
 	 * {@code remove()} call, {@code original} no longer contains the corresponding element.
+	 * </p>
 	 * 
 	 * @param original
 	 *            the original iterable. May not be <code>null</code>.
@@ -305,12 +345,38 @@ public class IterableExtensions {
 	}
 
 	/**
+	 * Returns an iterable that performs the given {@code transformation} for each element of {@code original} when
+	 * requested. The mapping is done lazily. That is, subsequent iterations of the elements in the iterable will
+	 * repeatedly apply the transformation.
+	 * <p>
+	 * The transformation maps each element to an iterable, and all resulting iterables are combined to a single iterable.
+	 * Effectively a combination of {@link #map(Iterable, Functions.Function1)} and {@link #flatten(Iterable)} is performed.
+	 * </p>
+	 * <p>
+	 * The returned iterable's iterator <i>does not support {@code remove()}</i> in contrast to {@link #map(Iterable, Functions.Function1)}.
+	 * </p>
+	 * 
+	 * @param original
+	 *            the original iterable. May not be <code>null</code>.
+	 * @param transformation
+	 *            the transformation. May not be <code>null</code> and must not yield <code>null</code>.
+	 * @return an iterable that provides the result of the transformation. Never <code>null</code>.
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <T, R> Iterable<R> flatMap(Iterable<T> original, Function1<? super T, ? extends Iterable<R>> transformation) {
+		return flatten(map(original, transformation));
+	}
+
+	/**
 	 * Combines multiple iterables into a single iterable. The returned iterable has an iterator that traverses the
 	 * elements of each iterable in {@code inputs}. The input iterators are not polled until necessary.
 	 * 
 	 * <p>
 	 * The returned iterable's iterator supports {@code remove()} when the corresponding input iterator supports it. The
 	 * methods of the returned iterable may throw {@code NullPointerException} if any of the input iterators are null.
+	 * </p>
 	 * 
 	 * @param inputs
 	 *            the to be flattened iterables. May not be <code>null</code>.
@@ -606,6 +672,26 @@ public class IterableExtensions {
 		return IteratorExtensions.toMap(values.iterator(), computeKeys);
 	}
 	
+	
+	/**
+	 * Returns a map for which the {@link Map#values} are the product of invoking supplied function {@code computeValues} 
+	 * on input iterable elements, and each key is the product of invoking a supplied function {@code computeKeys} on same elements. 
+	 * If the function produces the same key for different values, the last one will be contained in the map.
+	 * 
+	 * @param inputs
+	 *            the elements to use when constructing the {@code Map}. May not be <code>null</code>.
+	 * @param computeKeys
+	 *            the function used to produce the key for each value. May not be <code>null</code>.
+	 * @param computeValues
+	 *            the function used to produce the values for each key. May not be <code>null</code>.
+	 * @return a map mapping the result of evaluating the functions {@code keyFunction} and {@code computeValues} on each value in the input
+	 *         iterator to that value
+	 */
+	public static <T, K, V> Map<K, V> toMap(Iterable<? extends T> inputs, Function1<? super T, K> computeKeys, Function1<? super T, V> computeValues) {
+        return IteratorExtensions.toMap(inputs.iterator(),computeKeys,computeValues);
+    }
+
+	
 	/**
 	 * Returns a map for which the {@link Map#values} is a collection of lists, where the elements in the list will 
 	 * appear in the order as they appeared in the iterable. Each key is the product of invoking the supplied 
@@ -891,5 +977,24 @@ public class IterableExtensions {
 	 */
 	public static <T> T max(final Iterable<T> iterable, Comparator<? super T> comparator) {
 		return IteratorExtensions.max(iterable.iterator(), comparator);
+	}
+
+    /**
+     * Returns <tt>true</tt> if this Iterable contains the specified element.
+     * More formally, returns <tt>true</tt> if and only if this Iterable contains
+     * at least one element <tt>e</tt> such that
+     * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>.
+     *
+     * @param iterable 
+     * 			the elements to test
+     * @param o 
+     * 			element whose presence in the Iterable is to be tested
+     * @return <tt>true</tt> if this Iterable contains the specified element
+     */
+	public static boolean contains(Iterable<?> iterable, Object o) {
+		if (iterable instanceof Collection<?>) {
+			return ((Collection<?>) iterable).contains(o);
+		}
+		return IteratorExtensions.contains(iterable.iterator(), o);
 	}
 }

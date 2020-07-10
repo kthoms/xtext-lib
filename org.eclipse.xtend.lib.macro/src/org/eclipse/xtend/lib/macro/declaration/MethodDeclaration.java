@@ -1,18 +1,22 @@
 /*******************************************************************************
  * Copyright (c) 2013 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 /*******************************************************************************
  * Copyright (c) 2013 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtend.lib.macro.declaration;
+
+import java.util.Collections;
 
 import com.google.common.annotations.Beta;
 
@@ -57,10 +61,17 @@ public interface MethodDeclaration extends ExecutableDeclaration {
 	 * @return whether this method is declared <code>native</code>
 	 */
 	boolean isNative();
-
 	
 	/**
 	 * @return the return type of this method
 	 */
 	TypeReference getReturnType();
+	
+	/**
+	 * @return the overridden or implemented methods
+	 * @since 2.23
+	 */
+	default Iterable<? extends MethodDeclaration> getOverriddenOrImplementedMethods() {
+		return Collections.emptyList();
+	}
 }

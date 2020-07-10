@@ -1,9 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2013 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 
 package org.eclipse.xtend.lib.macro.declaration;
@@ -40,7 +41,7 @@ public interface AnnotationReference extends Element {
 	 * 	<li>Float or float[]</li>
 	 * 	<li>Double or double[]</li>
 	 * 	<li>Boolean or boolean[]</li>
-	 * 	<li>TypeReference or TypeReference[] - for elements of type Class<?></li>
+	 * 	<li>TypeReference or TypeReference[] - for elements of type Class&lt;?&gt;</li>
 	 * 	<li>AnnotationReference or AnnotationReference[] - for elements of an annotation type</li>
 	 * 	<li>EnumerationValueDeclaration or EnumerationValueDeclaration[] - for elements of an enum type</li>
 	 *  <li> <code>null</code> if no value is set and no default value on the original annotation type element is declared.</li>

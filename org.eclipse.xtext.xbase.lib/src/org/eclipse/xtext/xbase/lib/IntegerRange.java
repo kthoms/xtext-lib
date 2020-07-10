@@ -1,9 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2012, 2016 itemis AG (http://www.itemis.eu) and others.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtext.xbase.lib;
 
@@ -19,6 +20,7 @@ import com.google.common.annotations.GwtCompatible;
  * The <code>step</code> can be positive or negative, but never 0. It must have the same signum as of <code>end-start</code>.
  * 
  * @author Jan Koehnlein - Initial contribution and API
+ * @author Karsten Thoms - Bug#381140
  * @since 2.3
  */
 @GwtCompatible public class IntegerRange implements Iterable<Integer> {
@@ -38,7 +40,7 @@ import com.google.common.annotations.GwtCompatible;
 
 	/**
 	 * Constructs a new IntegerRange object.
-	 * The step will be set to -1 if end<start or to 1 otherwise.
+	 * The step will be set to -1 if end&lt;start or to 1 otherwise.
 	 * 
 	 * @param start
 	 *            the start value (inclusive)
@@ -62,7 +64,7 @@ import com.google.common.annotations.GwtCompatible;
 	 */
 	@Pure
 	public IntegerRange(int start, int end, int step) {
-		if ((end - start) * step < 0)
+		if ((start < end) && step < 0 || (start > end) && step > 0)
 			throw new IllegalArgumentException("The step of an IntegerRange must have the correct sign.");
 		if (step == 0)
 			throw new IllegalArgumentException("The step of an IntegerRange must not be 0");

@@ -1,9 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2014 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtend.lib.macro.services;
 
@@ -35,7 +36,7 @@ public interface AnnotationReferenceBuildContext {
 	 * <li>Float or float[]</li>
 	 * <li>Double or double[]</li>
 	 * <li>Boolean or boolean[]</li>
-	 * <li>TypeReference or TypeReference[] - for elements of type Class<?></li>
+	 * <li>TypeReference or TypeReference[] - for elements of type Class&lt;?&gt;</li>
 	 * <li>AnnotationReference or AnnotationReference[] - for elements of an annotation type</li>
 	 * <li>EnumerationValueDeclaration or EnumerationValueDeclaration[] - for elements of an enum type</li>
 	 * <li>Expression - for any element type that matches the given expression's type</li>

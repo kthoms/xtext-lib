@@ -1,9 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2011, 2017 itemis AG (http://www.itemis.eu) and others.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtext.xbase.lib;
 
@@ -27,8 +28,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 
 /**
  * This is an extension library for {@link java.util.Collection collections}.
@@ -81,6 +82,7 @@ import com.google.common.collect.Sets;
 	 *             if {@code elements} or any of items in {@code elements} is <code>null</code>
 	 */
 	@Pure
+	@SafeVarargs
 	public static <T> List<T> newImmutableList(T... elements) {
 		return ImmutableList.copyOf(elements);
 	}
@@ -97,6 +99,7 @@ import com.google.common.collect.Sets;
 	 *             if {@code elements} or any of items in {@code elements} is <code>null</code>
 	 */
 	@Pure
+	@SafeVarargs
 	public static <T> Set<T> newImmutableSet(T... elements) {
 		return ImmutableSet.copyOf(elements);
 	}
@@ -115,6 +118,7 @@ import com.google.common.collect.Sets;
 	 *             if duplicate keys are contained in {@code entries}.
 	 */
 	@Pure
+	@SafeVarargs
 	public static <K, V> Map<K, V> newImmutableMap(Pair<? extends K, ? extends V>... entries) {
 		if (entries.length == 0)
 			return emptyMap();
@@ -126,6 +130,18 @@ import com.google.common.collect.Sets;
 	}
 
 	/**
+	 * Creates an empty mutable {@link ArrayList} instance.
+	 * 
+	 * @return a new {@link ArrayList}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <T> ArrayList<T> newArrayList() {
+		return new ArrayList<T>();
+	}
+
+	/**
 	 * Creates a mutable {@link ArrayList} instance containing the given initial elements.
 	 * 
 	 * @param initial
@@ -133,9 +149,24 @@ import com.google.common.collect.Sets;
 	 *            contain <code>null</code> values.
 	 * @return a new {@link ArrayList} containing those elements
 	 */
+	@SafeVarargs
 	@Pure
 	public static <T> ArrayList<T> newArrayList(T... initial) {
-		return Lists.newArrayList(initial);
+		if (initial.length > 0)
+			return Lists.newArrayList(initial);
+		return newArrayList();
+	}
+
+	/**
+	 * Creates an empty mutable {@link LinkedList} instance.
+	 * 
+	 * @return a new {@link LinkedList}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <T> LinkedList<T> newLinkedList() {
+		return new LinkedList<T>();
 	}
 
 	/**
@@ -146,11 +177,24 @@ import com.google.common.collect.Sets;
 	 *            contain <code>null</code> values.
 	 * @return a new {@link LinkedList} containing those elements
 	 */
+	@SafeVarargs
 	@Pure
 	public static <T> LinkedList<T> newLinkedList(T... initial) {
 		if (initial.length > 0)
 			return Lists.newLinkedList(Arrays.asList(initial));
-		return Lists.newLinkedList();
+		return newLinkedList();
+	}
+
+	/**
+	 * Creates an empty mutable {@link HashSet} instance.
+	 * 
+	 * @return a new {@link HashSet}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <T> HashSet<T> newHashSet() {
+		return new HashSet<T>();
 	}
 
 	/**
@@ -161,9 +205,24 @@ import com.google.common.collect.Sets;
 	 *            contain <code>null</code> values.
 	 * @return a new {@link HashSet} containing those elements
 	 */
+	@SafeVarargs
 	@Pure
 	public static <T> HashSet<T> newHashSet(T... initial) {
-		return Sets.newHashSet(initial);
+		if (initial.length > 0)
+			return Sets.newHashSet(initial);
+		return newHashSet();
+	}
+
+	/**
+	 * Creates an empty mutable {@link LinkedHashSet} instance.
+	 * 
+	 * @return a new {@link LinkedHashSet}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <T> LinkedHashSet<T> newLinkedHashSet() {
+		return new LinkedHashSet<T>();
 	}
 
 	/**
@@ -174,11 +233,27 @@ import com.google.common.collect.Sets;
 	 *            contain <code>null</code> values.
 	 * @return a new {@link LinkedHashSet} containing those elements
 	 */
+	@SafeVarargs
 	@Pure
 	public static <T> LinkedHashSet<T> newLinkedHashSet(T... initial) {
 		if (initial.length > 0)
 			return Sets.newLinkedHashSet(Arrays.asList(initial));
-		return Sets.newLinkedHashSet();
+		return newLinkedHashSet();
+	}
+
+	/**
+	 * Creates an empty mutable {@link TreeSet} instance.
+	 * 
+	 * @param comparator
+	 *            the comparator that should be used. May be <code>null</code> which indicates that the natural ordering
+	 *            of the items should be used.
+	 * @return a new {@link TreeSet}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <T> TreeSet<T> newTreeSet(Comparator<? super T> comparator) {
+		return new TreeSet<T>(comparator);
 	}
 
 	/**
@@ -192,12 +267,25 @@ import com.google.common.collect.Sets;
 	 *            of the items should be used.
 	 * @return a new {@link TreeSet} containing those elements
 	 */
+	@SafeVarargs
 	@Pure
 	public static <T> TreeSet<T> newTreeSet(Comparator<? super T> comparator, T... initial) {
 		TreeSet<T> result = new TreeSet<T>(comparator);
 		if (initial.length > 0)
 			result.addAll(Arrays.asList(initial));
 		return result;
+	}
+
+	/**
+	 * Creates an empty mutable {@link HashMap} instance.
+	 * 
+	 * @return a new {@link HashMap}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <K, V> HashMap<K, V> newHashMap() {
+		return new HashMap<K, V>();
 	}
 
 	/**
@@ -211,11 +299,27 @@ import com.google.common.collect.Sets;
 	 * @throws IllegalArgumentException
 	 *             if duplicate keys are contained the {@code initial} entries.
 	 */
+	@SafeVarargs
 	@Pure
 	public static <K, V> HashMap<K, V> newHashMap(Pair<? extends K, ? extends V>... initial) {
-		HashMap<K, V> result = Maps.newHashMapWithExpectedSize(initial.length);
-		putAll(result, initial);
-		return result;
+		if (initial.length > 0) {
+			HashMap<K, V> result = new HashMap<K, V>(capacity(initial.length));
+			putAll(result, initial);
+			return result;
+		}
+		return newHashMap();
+	}
+
+	/**
+	 * Creates an empty mutable {@link LinkedHashMap} instance.
+	 * 
+	 * @return a new {@link LinkedHashMap}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
+		return new LinkedHashMap<K, V>();
 	}
 
 	/**
@@ -229,11 +333,39 @@ import com.google.common.collect.Sets;
 	 * @throws IllegalArgumentException
 	 *             if duplicate keys are contained the {@code initial} entries.
 	 */
+	@SafeVarargs
 	@Pure
 	public static <K, V> LinkedHashMap<K, V> newLinkedHashMap(Pair<? extends K, ? extends V>... initial) {
-		LinkedHashMap<K, V> result = new LinkedHashMap<K, V>(initial.length);
-		putAll(result, initial);
-		return result;
+		if (initial.length > 0) {
+			LinkedHashMap<K, V> result = new LinkedHashMap<K, V>(capacity(initial.length));
+			putAll(result, initial);
+			return result;
+		}
+		return newLinkedHashMap();
+	}
+	
+	private static int capacity(int initialSize) {
+		if (initialSize < 3)
+			return initialSize + 1;
+		else if (initialSize < Ints.MAX_POWER_OF_TWO)
+			return initialSize + initialSize / 3;
+		else
+			return Integer.MAX_VALUE;
+	}
+
+	/**
+	 * Creates an empty mutable {@link TreeMap} instance.
+	 * 
+	 * @param comparator
+	 *            the comparator that should be used. May be <code>null</code> which indicates that the natural ordering
+	 *            of the keys should be used.
+	 * @return a new {@link TreeMap}
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <K, V> TreeMap<K, V> newTreeMap(Comparator<? super K> comparator) {
+		return new TreeMap<K, V>(comparator);
 	}
 
 	/**
@@ -250,13 +382,15 @@ import com.google.common.collect.Sets;
 	 * @throws IllegalArgumentException
 	 *             if duplicate keys are contained the {@code initial} entries.
 	 */
+	@SafeVarargs
 	@Pure
 	public static <K, V> TreeMap<K, V> newTreeMap(Comparator<? super K> comparator, Pair<? extends K, ? extends V>... initial) {
-		TreeMap<K, V> result = Maps.newTreeMap(comparator);
+		TreeMap<K, V> result = new TreeMap<K, V>(comparator);
 		putAll(result, initial);
 		return result;
 	}
 
+	@SafeVarargs
 	private static <K, V> void putAll(Map<K, V> result, Pair<? extends K, ? extends V>... entries) {
 		for (Pair<? extends K, ? extends V> entry : entries) {
 			if (result.containsKey(entry.getKey()))

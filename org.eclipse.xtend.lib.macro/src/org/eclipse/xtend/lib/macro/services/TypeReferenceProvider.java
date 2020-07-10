@@ -1,9 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2013 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtend.lib.macro.services;
 
@@ -54,14 +55,14 @@ public interface TypeReferenceProvider {
 	 * Returns a new self type reference for the given typeDeclaration, e.g. if you have a class like
 	 * 
 	 * <pre>
-	 *  class Foo&ltT&gt {}
+	 *  class Foo&lt;T&gt; {}
 	 * </pre>
 	 * 
 	 * And you want to add a method that returns the instance itself, you would use the self type as the method's return type.
 	 * 
 	 * <pre>
-	 * class Foo&ltT&gt {
-	 *  def Foo&ltT&gt mySelf() {
+	 * class Foo&lt;T&gt; {
+	 *  def Foo&lt;T&gt; mySelf() {
 	 *   this
 	 *  }
 	 * }
@@ -69,7 +70,7 @@ public interface TypeReferenceProvider {
 	 * 
 	 * In contrast, {@link #newTypeReference(Type, TypeReference...)} without any arguments would return the raw type only and would result in code with warnings:
 	 * <pre>
-	 * class Foo&ltT&gt {
+	 * class Foo&lt;T&gt; {
 	 *  def Foo mySelf() {
 	 *   this
 	 *  }

@@ -1,9 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 itemis AG (http://www.itemis.eu) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2011, 2020 itemis AG (http://www.itemis.eu) and others.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
 package org.eclipse.xtext.xbase.lib;
 
@@ -13,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
@@ -44,7 +46,13 @@ import com.google.common.collect.Sets;
 @GwtCompatible public class IteratorExtensions {
 
 	/**
-	 * Wraps an {@link Iterator} in an {@link Iterable}.
+	 * Wraps an {@link Iterator} in an {@link Iterable}. WARNING: The resulting
+	 * {@link Iterable} may be used (e.g. calling
+	 * {@link IterableExtensions#isEmpty(Iterable)}) / iterated (e.g. in a for
+	 * loop) only once. If you want to create a reusable {@link Iterable} call
+	 * {@link IterableExtensions#toList(Iterable)} or
+	 * {@link IterableExtensions#toSet(Iterable)} on the result and reuse the
+	 * resulting {@link List} / {@link Set}
 	 * @param iterator the {@link Iterator} to wrap in an {@link Iterable}. May not be <code>null</code>.
 	 * @return an {@link Iterable} providing the given {@link Iterator}. Never <code>null</code>.
 	 */
@@ -244,6 +252,8 @@ import com.google.common.collect.Sets;
 	/**
 	 * Returns {@code true} if one or more elements in {@code iterator} satisfy the predicate.
 	 * 
+     * <p>Note that this will advance or even exhaust the given iterator.</p>
+	 * 
 	 * @param iterator
 	 *            the iterator. May not be <code>null</code>.
 	 * @param predicate
@@ -298,6 +308,22 @@ import com.google.common.collect.Sets;
 	}
 
 	/**
+	 * Returns the elements of {@code unfiltered} that do not satisfy a predicate. The resulting iterator does not
+	 * support {@code remove()}. The returned iterator is a view on the original elements. Changes in the unfiltered
+	 * original are reflected in the view.
+	 *
+	 * @param unfiltered
+	 *            the unfiltered iterator. May not be <code>null</code>.
+	 * @param predicate
+	 *            the predicate. May not be <code>null</code>.
+	 * @return an iterator that contains only the elements that do not fulfill the predicate. Never <code>null</code>.
+	 */
+	@Pure
+	public static <T> Iterator<T> reject(Iterator<T> unfiltered, Function1<? super T, Boolean> predicate) {
+		return Iterators.filter(unfiltered, Predicates.not(new BooleanFunctionDelegate<T>(predicate)));
+	}
+
+	/**
 	 * Returns all instances of class {@code type} in {@code unfiltered}. The returned iterator has elements whose class
 	 * is {@code type} or a subclass of {@code type}. The returned iterator does not support {@code remove()}.
 	 * The returned iterator is a view on the original elements. Changes in the unfiltered original are reflected in
@@ -346,6 +372,47 @@ import com.google.common.collect.Sets;
 	@Pure
 	public static <T, R> Iterator<R> map(Iterator<T> original, Function1<? super T, ? extends R> transformation) {
 		return Iterators.transform(original, new FunctionDelegate<T, R>(transformation));
+	}
+
+	/**
+	 * Returns an iterable that performs the given {@code transformation} for each element of {@code original} when
+	 * requested. The mapping is done lazily. That is, subsequent iterations of the elements in the iterable will
+	 * repeatedly apply the transformation.
+	 * <p>
+	 * The transformation maps each element to an iterable, and all resulting iterables are combined to a single iterable.
+	 * Effectively a combination of {@link #map(Iterator, Functions.Function1)} and {@link #flatten(Iterator)} is performed.
+	 * </p>
+	 * <p>
+	 * The returned iterable's iterator <i>does not support {@code remove()}</i> in contrast to {@link #map(Iterator, Functions.Function1)}.
+	 * </p>
+	 * 
+	 * @param original
+	 *            the original iterable. May not be <code>null</code>.
+	 * @param transformation
+	 *            the transformation. May not be <code>null</code> and must not yield <code>null</code>.
+	 * @return an iterable that provides the result of the transformation. Never <code>null</code>.
+	 * 
+	 * @since 2.13
+	 */
+	@Pure
+	public static <T, R> Iterator<R> flatMap(Iterator<T> original, Function1<? super T, ? extends Iterator<R>> transformation) {
+		return flatten(map(original, transformation));
+	}
+
+
+	/**
+	 * Combines multiple iterators into a single iterator. The returned iterator traverses the
+	 * elements of each iterator in {@code inputs}. The input iterators are not polled until necessary.
+	 * 
+	 * @param inputs
+	 *            the to be flattened iterators. May not be <code>null</code>.
+	 * @return an iterator that provides the concatenated values of the input elements. Never <code>null</code>.
+	 * 
+	 * @since 2.13
+	 */
+	@Inline(value="$2.$3concat($1)", imported=Iterators.class)
+	public static <T> Iterator<T> flatten(Iterator<? extends Iterator<? extends T>> inputs) {
+		return Iterators.concat(inputs);
 	}
 
 	/**
@@ -490,6 +557,8 @@ import com.google.common.collect.Sets;
 	 * {@code true} if {@code iterator} and {@code other} contain the same number of elements and every element of
 	 * {@code iterator} is equal to the corresponding element of {@code other}.
 	 * 
+	 * <p>Note that this will advance or even exhaust the given iterators.</p>
+	 * 
 	 * @param iterator
 	 *            an iterator. May not be <code>null</code>.
 	 * @param other
@@ -504,6 +573,8 @@ import com.google.common.collect.Sets;
 	 * Determines whether two iterators contain equal elements in the same order. More specifically, this method returns
 	 * {@code true} if {@code iterator} and {@code iterable} contain the same number of elements and every element of
 	 * {@code iterator} is equal to the corresponding element of {@code iterable}.
+	 * 
+	 * <p>Note that this will advance or even exhaust the given iterators.</p>
 	 * 
 	 * @param iterator
 	 *            an iterator. May not be <code>null</code>.
@@ -698,6 +769,35 @@ import com.google.common.collect.Sets;
 	}
 	
 	/**
+	 * Returns a map for which the {@link Map#values} are the product of invoking supplied function {@code computeValues} 
+	 * on input iterable elements, and each key is the product of invoking a supplied function {@code computeKeys} on same elements. 
+	 * If the function produces the same key for different values, the last one will be contained in the map. The input iterator is left exhausted.
+	 * 
+	 * @param inputs
+	 *            the elements to use when constructing the {@code Map}. May not be <code>null</code>.
+	 * @param computeKeys
+	 *            the function used to produce the key for each value. May not be <code>null</code>.
+	 * @param computeValues
+	 *            the function used to produce the values for each key. May not be <code>null</code>.
+	 * @return a map mapping the result of evaluating the functions {@code keyFunction} and {@code computeValues} on each value in the input
+	 *         iterator to that value
+	 */
+	public static <T, K, V> Map<K, V> toMap(Iterator<? extends T> inputs, Function1<? super T, K> computeKeys, Function1<? super T, V> computeValues) {
+        if (computeKeys == null)
+            throw new NullPointerException("computeKeys");
+        if (computeValues == null)
+            throw new NullPointerException("computeValues");
+        Map<K, V> result = Maps.newLinkedHashMap();
+        while(inputs.hasNext()) {
+            T t = inputs.next();
+            result.put(computeKeys.apply(t), computeValues.apply(t));
+        }
+        return result;
+    }
+	
+	
+	
+	/**
 	 * Returns a map for which the {@link Map#values} is a collection of lists, where the elements in the list will 
 	 * appear in the order as they appeared in the iterator. Each key is the product of invoking the supplied 
 	 * function {@code computeKeys} on its corresponding value. So a key of that map groups a list of values for 
@@ -840,6 +940,8 @@ import com.google.common.collect.Sets;
 	 * Finds the minimum of the given elements according to their natural ordering. If there are several mimina, the
 	 * first one will be returned.
 	 * 
+	 * <p>Note that this will advance or even exhaust the given iterator.</p>
+	 * 
 	 * @param iterator
 	 *            the mutually comparable elements. May not be <code>null</code>.
 	 * @return the minimum
@@ -854,6 +956,8 @@ import com.google.common.collect.Sets;
 	/**
 	 * Finds the element that yields the minimum value when passed to <code>compareBy</code>. If there are several
 	 * maxima, the first one will be returned.
+	 * 
+	 * <p>Note that this will advance or even exhaust the given iterator.</p>
 	 * 
 	 * @param iterator
 	 *            the elements to find the minimum of. May not be <code>null</code>.
@@ -873,6 +977,8 @@ import com.google.common.collect.Sets;
 	/**
 	 * Finds the mininmum element according to <code>comparator</code>. If there are several minima, the first one will
 	 * be returned.
+	 * 
+	 * <p>Note that this will advance or even exhaust the given iterator.</p>
 	 * 
 	 * @param iterator
 	 *            the elements to find the minimum of. May not be <code>null</code>.
@@ -898,6 +1004,8 @@ import com.google.common.collect.Sets;
 	 * Finds the maximum of the elements according to their natural ordering. If there are several maxima, the first one
 	 * will be returned.
 	 * 
+     * <p>Note that this will advance or even exhaust the given iterator.</p>
+     * 
 	 * @param iterator
 	 *            the mutually comparable elements. May not be <code>null</code>.
 	 * @return the maximum
@@ -912,6 +1020,8 @@ import com.google.common.collect.Sets;
 	/**
 	 * Finds the element that yields the maximum value when passed to <code>compareBy</code> If there are several
 	 * maxima, the first one will be returned.
+	 * 
+	 * <p>Note that this will advance or even exhaust the given iterator.</p>
 	 * 
 	 * @param iterator
 	 *            the elements to find the maximum of. May not be <code>null</code>.
@@ -932,6 +1042,8 @@ import com.google.common.collect.Sets;
 	 * Finds the maximum element according to <code>comparator</code>. If there are several maxima, the first one will
 	 * be returned.
 	 * 
+	 * <p>Note that this will advance or even exhaust the given iterator.</p>
+	 * 
 	 * @param iterator
 	 *            the elements to find the maximum of. May not be <code>null</code>.
 	 * @param comparator
@@ -950,5 +1062,30 @@ import com.google.common.collect.Sets;
 			max = comparator.compare(max, element) >= 0 ? max : element;
 		}
 		return max;
+	}
+
+	/**
+	 * Returns <tt>true</tt> if this Iterator contains the specified element.
+	 * More formally, returns <tt>true</tt> if and only if this Iterator
+	 * contains at least one element <tt>e</tt> such that
+	 * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>.
+	 * 
+	 * <p>
+	 * Note that this will advance or even exhaust the given iterator.
+	 * </p>
+	 *
+	 * @param iterator 
+	 * 			the elements to test
+	 * @param o 
+	 * 			element whose presence in this Iterator is to be tested
+	 * @return <tt>true</tt> if this Iterator contains the specified element
+	 */
+	public static boolean contains(Iterator<?> iterator, Object o) {
+		while (iterator.hasNext()) {
+			if (Objects.equals(o, iterator.next())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
