@@ -8,7 +8,7 @@ dependencies {
     constraints {
         api "args4j:args4j:2.33"
         api "com.google.code.findbugs:jsr305:3.0.2"
-        api "com.google.errorprone:error_prone_annotations:2.2.0"
+        api "com.google.errorprone:error_prone_annotations:2.4.0"
         api "com.google.guava:guava-gwt:27.1-jre"
         api "com.google.guava:guava-testlib:27.1-jre"
         api "com.google.guava:guava:27.1-jre"
