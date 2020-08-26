@@ -19,7 +19,7 @@ dependencies {
         api "log4j:log4j:1.2.17"
         api "org.antlr:antlr-runtime:3.2"
         api "org.eclipse.emf:org.eclipse.emf.codegen.ecore:2.20.0"
-        api "org.eclipse.emf:org.eclipse.emf.codegen:2.19.0"
+        api "org.eclipse.emf:org.eclipse.emf.codegen:2.20.0"
         api "org.eclipse.emf:org.eclipse.emf.common:2.17.0"
         api "org.eclipse.emf:org.eclipse.emf.ecore.change:2.14.0"
         api "org.eclipse.emf:org.eclipse.emf.ecore.xmi:2.16.0"
